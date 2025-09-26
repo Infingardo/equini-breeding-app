@@ -1,0 +1,748 @@
+Add equine <!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Accoppiamenti Equini</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 16px;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .selection-area {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .animal-selector {
+            text-align: center;
+        }
+        
+        .selector-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .animal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .animal-option {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 3px solid #dee2e6;
+            border-radius: 15px;
+            padding: 15px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .animal-option::before {
+            content: '👆 CLICCA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,123,255,0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .animal-option:hover::before {
+            opacity: 1;
+        }
+        
+        .animal-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,123,255,0.3);
+            border-color: #007bff;
+        }
+        
+        .animal-option.selected {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40,167,69,0.4);
+        }
+        
+        .animal-option.selected::before {
+            content: '✓ SELEZIONATO';
+            background: rgba(255,255,255,0.9);
+            color: #28a745;
+            opacity: 1;
+        }
+        
+        .animal-option .icon {
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .animal-option .name {
+            font-weight: bold;
+            font-size: 14px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            margin-bottom: 3px;
+        }
+        
+        .animal-option .name-en {
+            font-size: 11px;
+            opacity: 0.7;
+            font-style: italic;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+        
+        .animal-option .chromosomes {
+            font-size: 10px;
+            background: rgba(0,0,0,0.1);
+            padding: 3px 6px;
+            border-radius: 8px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        .breeding-symbol {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #007bff;
+            font-weight: bold;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px dashed #007bff;
+        }
+        
+        .breeding-symbol .symbol {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+        
+        .breeding-symbol .text {
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .result-area {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .result-area.show-result {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .result-area.hybrid {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+        
+        .result-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .result-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .result-name-en {
+            font-size: 18px;
+            opacity: 0.8;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .detail-card {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .detail-title {
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .fertility-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .fertile {
+            background: #28a745;
+            color: white;
+        }
+        
+        .sterile {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .instructions {
+            text-align: center;
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        @media (max-width: 768px) {
+            .selection-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .breeding-symbol .symbol {
+                transform: rotate(90deg);
+            }
+            
+            .animal-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .animal-option {
+                padding: 8px 5px;
+                height: 120px;
+            }
+            
+            .animal-option .icon {
+                font-size: 24px;
+            }
+            
+            .animal-option .name {
+                font-size: 12px;
+                height: 16px;
+            }
+            
+            .animal-option .name-en {
+                font-size: 10px;
+                height: 12px;
+            }
+            
+            .animal-option .chromosomes {
+                font-size: 9px;
+                height: 14px;
+                padding: 2px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐴 Calcolatore Accoppiamenti Equini 🐴</h1>
+            <p>Scopri il risultato di ogni possibile accoppiamento tra equini</p>
+        </div>
+        
+        <div class="main-content">
+            <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); padding: 20px; border-radius: 15px; margin-bottom: 30px; border-left: 5px solid #28a745;">
+                <h3 style="color: #155724; margin-bottom: 10px;">📋 Come usare:</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; color: #155724;">
+                    <div><strong>1️⃣ CLICCA</strong> su un animale nella sezione sinistra</div>
+                    <div><strong>2️⃣ CLICCA</strong> su un animale nella sezione destra</div>
+                    <div><strong>3️⃣ VEDI</strong> automaticamente il risultato dell'accoppiamento!</div>
+                </div>
+            </div>
+            
+            <div class="selection-area">
+                <div class="animal-selector">
+                    <div class="selector-title">🅰️ Primo Genitore<br><small style="font-weight: normal; color: #6c757d;">👆 Clicca per selezionare</small></div>
+                    <div class="animal-grid">
+                        <div class="animal-option" data-animal="cavallo_m">
+                            <span class="icon">🐎</span>
+                            <div class="name">Cavallo ♂</div>
+                            <div class="name-en">Horse</div>
+                            <div class="chromosomes">64 cromosomi</div>
+                        </div>
+                        <div class="animal-option" data-animal="giumenta">
+                            <span class="icon">🐴</span>
+                            <div class="name">Giumenta ♀</div>
+                            <div class="name-en">Mare</div>
+                            <div class="chromosomes">64 cromosomi</div>
+                        </div>
+                        <div class="animal-option" data-animal="asino_m">
+                            <span class="icon">🫏</span>
+                            <div class="name">Asino ♂</div>
+                            <div class="name-en">Donkey</div>
+                            <div class="chromosomes">62 cromosomi</div>
+                        </div>
+                        <div class="animal-option" data-animal="asina">
+                            <span class="icon">🫏</span>
+                            <div class="name">Asina ♀</div>
+                            <div class="name-en">Jenny</div>
+                            <div class="chromosomes">62 cromosomi</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="breeding-symbol">
+                    <div class="symbol">🤝</div>
+                    <div class="text">SI<br>ACCOPPIANO</div>
+                </div>
+                
+                <div class="animal-selector">
+                    <div class="selector-title">🅱️ Secondo Genitore<br><small style="font-weight: normal; color: #6c757d;">👆 Clicca per selezionare</small></div>
+                    <div class="animal-grid">
+                        <div class="animal-option" data-animal="cavallo_m">
+                            <div class="icon">
+                                <svg class="animal-icon-svg" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Corpo cavallo stallone -->
+                                    <ellipse cx="45" cy="45" rx="25" ry="18" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+                                    <!-- Collo muscoloso -->
+                                    <ellipse cx="20" cy="35" rx="12" ry="20" fill="#A0522D" stroke="#654321" stroke-width="1"/>
+                                    <!-- Testa -->
+                                    <ellipse cx="15" cy="20" rx="8" ry="12" fill="#D2B48C" stroke="#654321" stroke-width="1"/>
+                                    <!-- Criniera folta -->
+                                    <path d="M8 15 Q5 8 12 5 Q18 8 15 18 Q10 25 8 15" fill="#2F1B14"/>
+                                    <path d="M12 12 Q8 5 15 3 Q20 6 18 15" fill="#3D2817"/>
+                                    <!-- Orecchie -->
+                                    <ellipse cx="12" cy="12" rx="2" ry="4" fill="#D2B48C" stroke="#654321" stroke-width="0.5"/>
+                                    <ellipse cx="18" cy="10" rx="2" ry="4" fill="#D2B48C" stroke="#654321" stroke-width="0.5"/>
+                                    <!-- Occhio -->
+                                    <circle cx="16" cy="18" r="2" fill="#000"/>
+                                    <circle cx="16.5" cy="17.5" r="0.8" fill="#FFF"/>
+                                    <!-- Zampe anteriori -->
+                                    <rect x="28" y="58" width="4" height="15" fill="#8B4513"/>
+                                    <rect x="35" y="58" width="4" height="15" fill="#8B4513"/>
+                                    <!-- Zampe posteriori -->
+                                    <rect x="55" y="58" width="4" height="15" fill="#8B4513"/>
+                                    <rect x="62" y="58" width="4" height="15" fill="#8B4513"/>
+                                    <!-- Coda -->
+                                    <path d="M70 40 Q80 35 85 50 Q80 55 75 45" fill="#2F1B14"/>
+                                </svg>
+                            </div>
+                            <div class="name">Cavallo ♂</div>
+                            <div class="name-en">Horse</div>
+                            <div class="chromosomes">64 cromosomi</div>
+                        </div>
+                        <div class="animal-option" data-animal="giumenta">
+                            <div class="icon">
+                                <svg class="animal-icon-svg" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Corpo giumenta (più snello e piccolo) -->
+                                    <ellipse cx="45" cy="45" rx="20" ry="14" fill="#CD853F" stroke="#8B4513" stroke-width="1"/>
+                                    <!-- Collo elegante -->
+                                    <ellipse cx="22" cy="35" rx="9" ry="16" fill="#D2B48C" stroke="#8B4513" stroke-width="1"/>
+                                    <!-- Testa delicata -->
+                                    <ellipse cx="17" cy="22" rx="7" ry="10" fill="#F5DEB3" stroke="#8B4513" stroke-width="1"/>
+                                    <!-- Criniera elegante -->
+                                    <path d="M10 18 Q7 12 13 8 Q17 10 15 20 Q12 22 10 18" fill="#8B4513"/>
+                                    <path d="M13 15 Q10 8 16 6 Q19 8 17 17" fill="#A0522D"/>
+                                    <!-- Orecchie -->
+                                    <ellipse cx="13" cy="14" rx="1.5" ry="3.5" fill="#F5DEB3" stroke="#8B4513" stroke-width="0.5"/>
+                                    <ellipse cx="18" cy="12" rx="1.5" ry="3.5" fill="#F5DEB3" stroke="#8B4513" stroke-width="0.5"/>
+                                    <!-- Occhio grande -->
+                                    <circle cx="16" cy="20" r="2.5" fill="#000"/>
+                                    <circle cx="16.5" cy="19.5" r="1" fill="#FFF"/>
+                                    <!-- Zampe eleganti -->
+                                    <rect x="30" y="56" width="3" height="17" fill="#CD853F"/>
+                                    <rect x="36" y="56" width="3" height="17" fill="#CD853F"/>
+                                    <rect x="54" y="56" width="3" height="17" fill="#CD853F"/>
+                                    <rect x="60" y="56" width="3" height="17" fill="#CD853F"/>
+                                    <!-- Coda fluente -->
+                                    <path d="M65 42 Q73 38 78 48 Q74 56 66 48" fill="#8B4513"/>
+                                </svg>
+                            </div>
+                            <div class="name">Giumenta ♀</div>
+                            <div class="name-en">Mare</div>
+                            <div class="chromosomes">64 cromosomi</div>
+                        </div>
+                        <div class="animal-option" data-animal="asino_m">
+                            <div class="icon">
+                                <svg class="animal-icon-svg" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Corpo asino (più tozzo) -->
+                                    <ellipse cx="45" cy="48" rx="20" ry="15" fill="#696969" stroke="#2F2F2F" stroke-width="1"/>
+                                    <!-- Collo corto -->
+                                    <ellipse cx="25" cy="38" rx="8" ry="15" fill="#808080" stroke="#2F2F2F" stroke-width="1"/>
+                                    <!-- Testa -->
+                                    <ellipse cx="20" cy="25" rx="6" ry="10" fill="#A9A9A9" stroke="#2F2F2F" stroke-width="1"/>
+                                    <!-- Orecchie LUNGHE caratteristiche -->
+                                    <ellipse cx="10" cy="15" rx="3" ry="12" fill="#A9A9A9" stroke="#2F2F2F" stroke-width="1"/>
+                                    <ellipse cx="25" cy="12" rx="3" ry="12" fill="#A9A9A9" stroke="#2F2F2F" stroke-width="1"/>
+                                    <ellipse cx="10" cy="15" rx="1.5" ry="8" fill="#D3D3D3"/>
+                                    <ellipse cx="25" cy="12" rx="1.5" ry="8" fill="#D3D3D3"/>
+                                    <!-- Criniera corta e retta -->
+                                    <rect x="15" y="8" width="8" height="4" fill="#2F2F2F"/>
+                                    <rect x="16" y="12" width="6" height="3" fill="#2F2F2F"/>
+                                    <!-- Occhio -->
+                                    <circle cx="18" cy="22" r="2" fill="#000"/>
+                                    <circle cx="18.5" cy="21.5" r="0.7" fill="#FFF"/>
+                                    <!-- Zampe robuste -->
+                                    <rect x="32" y="60" width="4" height="13" fill="#696969"/>
+                                    <rect x="38" y="60" width="4" height="13" fill="#696969"/>
+                                    <rect x="52" y="60" width="4" height="13" fill="#696969"/>
+                                    <rect x="58" y="60" width="4" height="13" fill="#696969"/>
+                                    <!-- Coda con ciuffo -->
+                                    <rect x="65" y="45" width="2" height="12" fill="#2F2F2F"/>
+                                    <ellipse cx="66" cy="58" rx="4" ry="3" fill="#2F2F2F"/>
+                                    <!-- Muso allungato -->
+                                    <ellipse cx="12" cy="28" rx="4" ry="6" fill="#D3D3D3" stroke="#2F2F2F" stroke-width="0.5"/>
+                                    <!-- Narici -->
+                                    <ellipse cx="10" cy="26" rx="0.5" ry="1" fill="#000"/>
+                                    <ellipse cx="10" cy="29" rx="0.5" ry="1" fill="#000"/>
+                                </svg>
+                            </div>
+                            <div class="name">Asino ♂</div>
+                            <div class="name-en">Donkey</div>
+                            <div class="chromosomes">62 cromosomi</div>
+                        </div>
+                        <div class="animal-option" data-animal="asina">
+                            <div class="icon">
+                                <svg class="animal-icon-svg" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Corpo asina (più piccolo) -->
+                                    <ellipse cx="45" cy="48" rx="18" ry="13" fill="#B8B8B8" stroke="#696969" stroke-width="1"/>
+                                    <!-- Collo delicato -->
+                                    <ellipse cx="25" cy="38" rx="7" ry="13" fill="#C8C8C8" stroke="#696969" stroke-width="1"/>
+                                    <!-- Testa piccola -->
+                                    <ellipse cx="20" cy="26" rx="5" ry="8" fill="#DCDCDC" stroke="#696969" stroke-width="1"/>
+                                    <!-- Orecchie lunghe ma delicate -->
+                                    <ellipse cx="12" cy="16" rx="2.5" ry="10" fill="#DCDCDC" stroke="#696969" stroke-width="1"/>
+                                    <ellipse cx="23" cy="14" rx="2.5" ry="10" fill="#DCDCDC" stroke="#696969" stroke-width="1"/>
+                                    <ellipse cx="12" cy="16" rx="1" ry="7" fill="#F5F5F5"/>
+                                    <ellipse cx="23" cy="14" rx="1" ry="7" fill="#F5F5F5"/>
+                                    <!-- Criniera corta -->
+                                    <rect x="16" y="10" width="6" height="3" fill="#696969"/>
+                                    <rect x="17" y="13" width="4" height="2" fill="#696969"/>
+                                    <!-- Occhio grande e dolce -->
+                                    <circle cx="18" cy="23" r="2.5" fill="#000"/>
+                                    <circle cx="18.5" cy="22.5" r="1" fill="#FFF"/>
+                                    <!-- Zampe sottili -->
+                                    <rect x="33" y="58" width="3" height="15" fill="#B8B8B8"/>
+                                    <rect x="38" y="58" width="3" height="15" fill="#B8B8B8"/>
+                                    <rect x="52" y="58" width="3" height="15" fill="#B8B8B8"/>
+                                    <rect x="57" y="58" width="3" height="15" fill="#B8B8B8"/>
+                                    <!-- Coda sottile -->
+                                    <rect x="63" y="46" width="1.5" height="10" fill="#696969"/>
+                                    <ellipse cx="63.5" cy="57" rx="3" ry="2" fill="#696969"/>
+                                    <!-- Muso delicato -->
+                                    <ellipse cx="13" cy="28" rx="3" ry="5" fill="#F5F5F5" stroke="#696969" stroke-width="0.5"/>
+                                    <!-- Narici piccole -->
+                                    <ellipse cx="12" cy="27" rx="0.3" ry="0.8" fill="#000"/>
+                                    <ellipse cx="12" cy="29" rx="0.3" ry="0.8" fill="#000"/>
+                                </svg>
+                            </div>
+                            <div class="name">Asina ♀</div>
+                            <div class="name-en">Jenny</div>
+                            <div class="chromosomes">62 cromosomi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-area" id="resultArea">
+                <div class="instructions">
+                    <div style="font-size: 50px; margin-bottom: 20px;">🎯</div>
+                    <h3>Pronto per scoprire il risultato!</h3>
+                    <p style="margin: 15px 0;">Seleziona <strong>un animale dalla sezione A</strong> e <strong>uno dalla sezione B</strong></p>
+                    <div style="background: rgba(0,123,255,0.1); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                        <strong>💡 Suggerimento:</strong> Passa il mouse sui pulsanti per vedere che sono cliccabili!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database degli animali e loro caratteristiche
+        const animals = {
+            cavallo_m: { name: 'Cavallo', nameEn: 'Horse', icon: '🐎', chromosomes: 64, gender: 'male' },
+            giumenta: { name: 'Giumenta', nameEn: 'Mare', icon: '🐴', chromosomes: 64, gender: 'female' },
+            asino_m: { name: 'Asino', nameEn: 'Donkey', icon: '🫏', chromosomes: 62, gender: 'male' },
+            asina: { name: 'Asina', nameEn: 'Jenny', icon: '🫏', chromosomes: 62, gender: 'female' }
+        };
+
+        // Database dei risultati degli accoppiamenti
+        const breedingResults = {
+            'cavallo_m+giumenta': {
+                name: 'Puledro', nameEn: 'Foal', icon: '🐴',
+                chromosomes: 64, fertile: true, type: 'purebred',
+                description: 'Progenie normale di cavalli'
+            },
+            'giumenta+cavallo_m': {
+                name: 'Puledro', nameEn: 'Foal', icon: '🐴',
+                chromosomes: 64, fertile: true, type: 'purebred',
+                description: 'Progenie normale di cavalli'
+            },
+            'asino_m+asina': {
+                name: 'Asinello', nameEn: 'Donkey Foal', icon: '🫏',
+                chromosomes: 62, fertile: true, type: 'purebred',
+                description: 'Progenie normale di asini'
+            },
+            'asina+asino_m': {
+                name: 'Asinello', nameEn: 'Donkey Foal', icon: '🫏',
+                chromosomes: 62, fertile: true, type: 'purebred',
+                description: 'Progenie normale di asini'
+            },
+            'asino_m+giumenta': {
+                name: 'Mulo', nameEn: 'Mule', icon: '🐴',
+                chromosomes: 63, fertile: false, type: 'hybrid',
+                description: 'Ibrido sterile - più comune dei bardotti'
+            },
+            'giumenta+asino_m': {
+                name: 'Mulo', nameEn: 'Mule', icon: '🐴',
+                chromosomes: 63, fertile: false, type: 'hybrid',
+                description: 'Ibrido sterile - più comune dei bardotti'
+            },
+            'cavallo_m+asina': {
+                name: 'Bardotto', nameEn: 'Hinny', icon: '🐴',
+                chromosomes: 63, fertile: false, type: 'hybrid',
+                description: 'Ibrido sterile - meno comune dei muli'
+            },
+            'asina+cavallo_m': {
+                name: 'Bardotto', nameEn: 'Hinny', icon: '🐴',
+                chromosomes: 63, fertile: false, type: 'hybrid',
+                description: 'Ibrido sterile - meno comune dei muli'
+            }
+        };
+
+        let selectedAnimals = [null, null];
+        
+        // Gestione selezione animali
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectors = document.querySelectorAll('.animal-selector');
+            
+            selectors.forEach((selector, selectorIndex) => {
+                const options = selector.querySelectorAll('.animal-option');
+                
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Rimuovi selezione precedente in questo selettore
+                        options.forEach(opt => opt.classList.remove('selected'));
+                        
+                        // Aggiungi selezione corrente
+                        this.classList.add('selected');
+                        
+                        // Salva selezione
+                        selectedAnimals[selectorIndex] = this.dataset.animal;
+                        
+                        // Calcola risultato se entrambi selezionati
+                        if (selectedAnimals[0] && selectedAnimals[1]) {
+                            calculateResult();
+                        }
+                    });
+                });
+            });
+        });
+
+        function calculateResult() {
+            const [parent1, parent2] = selectedAnimals;
+            const key1 = `${parent1}+${parent2}`;
+            const key2 = `${parent2}+${parent1}`;
+            
+            // Cerca il risultato in entrambe le direzioni
+            let result = breedingResults[key1] || breedingResults[key2];
+            
+            if (!result) {
+                // Casi particolari - stesso sesso
+                const animal1 = animals[parent1];
+                const animal2 = animals[parent2];
+                
+                if (animal1.gender === animal2.gender) {
+                    showError('⚠️ Accoppiamento impossibile: stesso sesso!');
+                    return;
+                }
+                
+                showError('❌ Combinazione non riconosciuta');
+                return;
+            }
+            
+            displayResult(result, animals[parent1], animals[parent2]);
+        }
+
+        function displayResult(result, parent1, parent2) {
+            const resultArea = document.getElementById('resultArea');
+            const isHybrid = result.type === 'hybrid';
+            
+            resultArea.className = `result-area show-result ${isHybrid ? 'hybrid' : ''}`;
+            
+            resultArea.innerHTML = `
+                <div class="result-icon">${result.icon}</div>
+                <div class="result-name">${result.name}</div>
+                <div class="result-name-en">${result.nameEn}</div>
+                
+                <div class="result-details">
+                    <div class="detail-card">
+                        <div class="detail-title">Cromosomi</div>
+                        <div class="detail-value">${result.chromosomes}</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">Tipo</div>
+                        <div class="detail-value">${result.type === 'purebred' ? 'Razza Pura' : 'Ibrido'}</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-title">Genitori</div>
+                        <div class="detail-value">${parent1.chromosomes} + ${parent2.chromosomes}</div>
+                    </div>
+                </div>
+                
+                <div class="fertility-badge ${result.fertile ? 'fertile' : 'sterile'}">
+                    ${result.fertile ? '✓ FERTILE' : '✗ STERILE'}
+                </div>
+                
+                <p style="margin-top: 15px; font-size: 14px; opacity: 0.8;">
+                    ${result.description}
+                </p>
+                
+                <button class="reset-btn" onclick="resetSelection()">
+                    🔄 Nuova Combinazione
+                </button>
+            `;
+        }
+
+        function showError(message) {
+            const resultArea = document.getElementById('resultArea');
+            resultArea.className = 'result-area';
+            resultArea.innerHTML = `
+                <div class="instructions">
+                    <h3>${message}</h3>
+                    <button class="reset-btn" onclick="resetSelection()">
+                        🔄 Riprova
+                    </button>
+                </div>
+            `;
+        }
+
+        function resetSelection() {
+            selectedAnimals = [null, null];
+            document.querySelectorAll('.animal-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            const resultArea = document.getElementById('resultArea');
+            resultArea.className = 'result-area';
+            resultArea.innerHTML = `
+                <div class="instructions">
+                    <div style="font-size: 50px; margin-bottom: 20px;">🎯</div>
+                    <h3>Pronto per scoprire il risultato!</h3>
+                    <p style="margin: 15px 0;">Seleziona <strong>un animale dalla sezione A</strong> e <strong>uno dalla sezione B</strong></p>
+                    <div style="background: rgba(0,123,255,0.1); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                        <strong>💡 Suggerimento:</strong> Passa il mouse sui pulsanti per vedere che sono cliccabili!
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>breeding app"
